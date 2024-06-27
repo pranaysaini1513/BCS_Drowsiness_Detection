@@ -1,0 +1,157 @@
+BCS (SummaryEEG based cross subject driver drowsinessrecognition with an interpretable convolutional neural network)
+
+This study focuses on to create a system that learns from the brain waves and can tell the drowsiness levels with better accuracy than other systems. The system can also explain why someone is drowsy and helps improve the system.
+
+
+INTRODUCTION
+Drowsiness is a major cause of car accidents. We want to create a system that monitors driver drowsiness using EEG (brain waves), but this is not simple as brain signals or waves vary in each individual. Existing patterns rely on pattern recognition of brain waves that can miss out some important information.
+Here in this research paper, we get to know about a new system that uses deep learning, a type of artificial intelligence, to automatically learn patterns from EEG data. This model is promising as it does not require pre-defined features.
+For this, a deep learning model named Interpretable CNN is developed. It can not only detect drowsiness but also explain the reason behind it.
+
+RELATED WORKS
+1.)	Existing driver monitoring systems
+Driver monitoring systems help prevent accidents by keeping tabs on how alert drivers are. These systems were first introduced in 2006 and use different methods to detect drowsiness.
+ Camera-based systems- track the driver's face for signs of sleepiness like drooping eyelids.  
+Driver behaviour-based systems- monitor how the car is driven (swerving, etc.) to guess if the driver is drowsy.
+ Physiological signal-based systems- use body signals like heart rate or brain waves (EEG) to detect drowsiness directly.
+EEG-based systems are promising because they can detect drowsiness earlier than other methods by monitoring brain activity.
+2.)	EEG Based driver drowsiness recognition
+EEG can detect the voltage differences on the scalp with the help of electrodes that are caused due to the electrical activities. For this, electrodes at various location on our scalp are placed.
+ Studies have shown a link between drowsiness and specific EEG wave patterns. Alpha and Theta wave power increases during drowsiness, while lower Alpha power indicates fighting sleep. Higher power across various bands suggests drowsiness progression towards sleep. 
+Deep learning gives a helpful approach for analyzing EEG data, it can automatically learn new features from the EEG data.
+Several successful deep learning models have been developed for driver drowsiness detection using EEG. These models use Convolutional Neural Networks (CNNs) to process EEG data. Some models achieve high accuracy, even on mobile devices, outperforming traditional methods. Existing models can handle both single-channel and multi-channel EEG data.
+Despite of a successful deep learning model for drowsiness detection, a challenge that remains is what the model learns from the data. This is important to ensure that model learns relevant features and discover new brain patterns. This paper proposes a new approach: a compact CNN model for multi-channel EEG data combined with a novel visualization technique. This technique allows the model to explain its decisions, revealing which parts of the EEG signal are most important for its drowsiness classifications.
+In future, by understanding what the model learns, developers can increase the accuracy and efficiency of the drowsiness detection model and this can help in driver safety technology.
+
+MATERIALS AND METHODS
+
+-Data Preparation
+ 
+The researchers used publicly available EEG data to study drowsiness detection. The data was collected from 27 people who drove a virtual reality car and responded to lane drifting events. Faster response times indicate alertness.
+The EEG used 30 electrode recordings having frequency of 500Hz.The artifacts were removed from the data.
+They then analysed 3-second snippets of EEG data leading up to lane drifting events. To label data as drowsy or alert, they considered both how quickly a person responded to the lane drift and their average response time in the past minute.
+
+If there were not many drowsy or alert examples then the data would be discarded. In the end, they had data from 11 people with an unequal number of drowsy and alert examples (unbalanced data), which reflects real-world situations. They also created a balanced dataset with an equal number of drowsy and alert examples for training their model.
+NETWORK DESIGN
+
+1.) The core idea
+The EEG data readings are not easy to understand as they look messy , because they pick up the brain activity as well as the noise that is not required, because of this noise, the raw data that we get cannot be directly used for analysis.
+This section tells us about the filtering of the noise to clean up the EEG data using the spatial filtering method. Imagine having multiple microphones recording sounds (brain activity + noise). Spatial filtering is like using math to combine the microphone recordings in a special way to create new recordings with mostly the desired sounds and less noise.
+Here's how it works:
+•	We have EEG data from multiple electrodes (microphones).
+•	We use spatial filters (math) to combine this data and create new signals with less noise.
+•	These new signals are a combination of the original ones weighted in a specific way to cancel out noise.
+•	Once we have cleaner data, we can extract features from it to identify drowsiness.
+A special mention of spatial filter called ICA has been given study that helps incorporates the process to improve the drowsiness detection accuracy.
+
+
+
+
+2.)The context of separable convolution  
+As the EEG data is processed, in the same way a technique called separable convolution which is used in image recognition models to reduce complexity.
+Regular convolution combines information about an image across colours (channels) and positions (width and height) at the same time.
+Depthwise separable convolution does this in two steps:
+1.	Depthwise convolution: This step analyses each colour in the image separately, looking for patterns across positions (width and height).
+2.	Pointwise convolution: This step combines the information from each colour (channel) to create a new, reduced set of features.
+This research applies depthwise separable convolution to EEG data in a similar way:
+1.	Pointwise convolution: This acts like a special filter (similar to ICA mentioned earlier) to remove noise from the EEG signal.
+2.	Depthwise convolution: This step analyses the cleaned EEG signal from each electrode (like each colour channel in an image) to learn patterns over time.
+Although the order of steps is different but this approach is similar to techniques used in advanced image recognition model.
+
+3.)Network Structure
+
+This deep learning model for drowsiness detection called Interpretable CNN consist of several layers.
+
+
+
+LAYER 1(POINTWISE CONVOLUTION)-
+
+This is a filter layer which removes filter from the EEG data.
+ It uses 16 pointwise convolutional nodes, each with weights and a bias term. These nodes analyse each channel of the EEG data independently and create 16 new channels with the same length as the original data.
+
+LAYER 2(DEPTHWISE CONVOLUTION)-
+ This layer sees the patterns and features from the EEG signals that we get after cleaning. It uses two depthwise convolutional nodes for each of the 16 new signals from Layer 1 (total of 32 nodes).
+Each node has a kernel size of 64 (half the sampling rate) and extracts features by combining nearby data points in the signal.
+The output of this layer has 32 channels and a shorter length due to the kernel size.
+
+LAYER 3 (ACTIVATION)-
+
+This layer applies the RELU function to the second layer. The RELU function essentially removes negative values and keeps positive values, making the data more focused on relevant patterns.
+
+LAYER 4(BATCH NORMALIZATION)-
+ 
+This layer converges and trains the model faster by normalizing the outputs from the third layer.
+
+
+
+
+
+
+
+
+LAYER 5(GLOBAL AVERAGE POOLING)
+ 
+This layer summarizes the information in each channel of the data from Layer 4. It calculates the average value across all time steps (length) for each channel, resulting in a fixed-size output regardless of the original signal length. This reduces the number of parameters in the model and helps prevent overfitting.
+
+LAYER 6(DENSE LAYER)-
+
+This layer combines the information from all channels in the previous layer. It uses weights and a bias term to create a single output value.
+
+LAYER 7(SOFTMAX ACTIVATION)- 
+
+This layer interprets the output from Layer 6 and assigns a probability to each class (alert or drowsy). The Softmax function ensures the probabilities sum to one, indicating the model's confidence in each class.
+
+INTERPRETATION TECHNIQUE
+It explains that which part of the EEG signals are important for the model to detect alertness or drowsiness. The current model which is based on image recognition do not work well for this concept.
+The key idea is to identify the most important areas in the activation map of the final layer (layer 6). An activation map shows how much each part of the data contributed to the model's classification. 
+-The calculation of the map shows that how much each part of the 5th layer contributed to the final classification.
+- We look at the most influential points on the map. For each point we trace the previous layer traced to it to find the corresponding original EEG signal that had the biggest influence. The math considers the weights from the depthwise convolution (layer 2) to see which parts of the original signal were most involved in creating the important spot in layer 5. We then find the centre point in time of this influential region in the original signal.
+-We find the centre point of the most influential region from the original signal
+- Finally, a heatmap is created for the entire EEG signal. This heatmap shows how much each time point likely influenced the model's decision (alert or drowsy) based on the previously identified influential regions.  The heatmap uses a Gaussian function to show the influence around the centre points we found earlier.
+Visualising the heatmap helps find out the model to distinguish between alert or drowsiness.
+
+DEEP LEARNING METHODS
+The new model (Inter-pretable CNN)  is compared with two existing models for drowsiness detection using EEG signals: EEGNet and Sinc-ShallowNet.
+EEGNet: This model is a popular choice for EEG classification and uses a combination of convolutional layers to extract features from the data.
+Sinc-ShallowNet: This model uses a special type of convolutional layer (sinc-convolutional) along with a standard convolutional layer to process the EEG data. 
+
+MODEL COMPARISON RESULTS
+The new model(interpretable CNN ) was compared with the other existing model and here’s what we get:
+-the overall accuracy of the new model is 78.35% which is achieved at 11 epochs as compared to the old model which had an accuracy of 76% for 39 epochs.
+-EEG models have accuracy of around 71-72% whereas the sinc-shallow-net achieved an accuracy of 72.42%.
+- Conv-ShallowNet performed better than Sinc-ShallowNet, reaching a peak accuracy of 75.19%
+- Replacing separable convolution with standard 1D convolution resulted in a 2% accuracy drop. Removing pointwise or depthwise convolution layers resulted in similar performance to 1DConv. Removing the batch normalization layer significantly affected performance.
+-Conventional methods achieved lower accuracies (53.40% - 72.68%) compared to deep learning models. The best performing conventional method (Log Power +GNB) reached an accuracy of 72.68%. Entropy-based features (Wavelet Entropy and Four Entropies) resulted in lower accuracies compared to band power features (Relative Power, Log Power, Power Ratio).
+ 
+ 
+
+
+RESULTS BASED ON UNBALANCED DATASET
+On assessing each type of model , here are the findings:
+- Deep Learning: Interpretable  CNN (proposed model), EEGNet-4,2, Conv-ShallowNet and 
+ Conventional: Relative Power +SVM, Log Power +GNB, on comparing these two we got to know that the highest accuracy was achieved by the interpretable CNN of 77.70%.
+
+Interpretation on the learned characteristics from EEG signals
+Here is what the model understood from the EEG signals to classify drowsy and alert state.
+In drowsy state-
+EEG samples classified as drowsy with high confidence contain high Theta or Alpha waves. Central and centro-parietal channels are more important for drowsiness classification as they contain cleaner cortical signals.
+In alert state-
+Samples classified as alert with high confidence often contain artifacts. Beta waves are identified from peripheral channels which can be a mix of cortical Beta waves and electromyography activity from nearby muscles. Large voltage changes in frontal channels indicate eye blinks and eye movements, common during wakefulness.
+
+Occasional EMG activity in drowsy EEG signals can confuse the model. The model might prioritize EMG activity over drowsiness indicators (Alpha waves) for classification.
+
+DISCUSSION AND FUTURE WORKS
+
+A new method to interpret deep learning model can be used for brain computer interfaces (BCI). This model has the ability to analyse raw EEG signals and distinguish between drowsiness and alert state.
+The key idea is to identify which parts of the EEG signal were most important to the model's decision. Researchers found the model learned patterns consistent with known neurological markers of drowsiness and alertness.
+For drowsiness, the model focused on Alpha waves and Theta wave bursts. For alertness, it looked at Beta waves and eye movements. The model even considered EMG activity (usually filtered out as noise) as an indicator of alertness.
+It was also investigated why some EEG signals were misclassified. In some cases, sensor noise or features from early drowsiness stages led to errors. 
+
+Overall, this research promises for interpreting deep learning models used for BCI. 
+
+CONCLUSION
+Basically the whole research is based on a model that can analyse EEG signals to detect drowsiness among people.
+This model uses a different type of convolution known as the separable convolution to process the EEG data.
+A technique was developed to understand what parts of the signal the model focuses on for making decisions. The model outperformed existing methods in recognizing drowsiness from EEG signals.
+
+ 
