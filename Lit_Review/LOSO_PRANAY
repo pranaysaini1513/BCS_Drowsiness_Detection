@@ -1,0 +1,55 @@
+#LOSO Cross Validation For EEG Disease Diagnosis
+
+INTRODUCTION
+-Studies related to neurological classification uses Machine learning algorithms such as SVM,logistic regression,Gaussian process.
+-In this study , a Multilayer perceptron has been used which signifies the importance of leave one subject out(LOSO) and shows how MLP can filter EEG data for disease diagnosis.
+
+Data EEG Acquisition and Pre Processing
+
+-Participants
+A study involving 632 participants was conducted at Flinders Medical Centre between 2003 and 2006. Each participant completed 10 EEG tasks. The Flinders Clinical Research Ethics Committee approved the reanalysis of this data.
+A separate analysis focused on a smaller group of 30 individuals (15 with schizophrenia and 15 healthy controls) from the original study. This analysis specifically examined EEG data during eyes-closed rest and maze tasks.
+
+-Data Acquisition
+1.)The researchers used a special machine with 128 sensors (EEG system) to capture brain activity from participants. This machine recorded electrical signals very fast (2000 times per second) but only paid attention to signals slower than 500 times per second (low-pass filter).
+2.)To minimize electrical interference, participants sat in a metal chamber (Faraday cage). They received instructions (visual and auditory) through a computer and responded using a specially designed button panel.
+3.)The researchers focused on brain activity during two tasks: resting with eyes open and navigating a maze.In the resting task, participants simply looked at a plain screen with a white cross for 40 seconds.
+4.)During the maze task, participants learned and remembered the correct path through a maze displayed on the computer screen. They used buttons to control a cursor and navigate the maze.
+
+-Artefact Removal
+Some faulty channels were identified to remove the artefacts such as problistic,kurtosis,spectra.Then the data was epoched.
+
+-MLP
+A specific type of artificial intelligence model called a Multi-Layer Perceptron (MLP) to analyze the brain activity data.
+This model is like a complex web with multiple layers of processing units.
+The MLP used in this study had four layers: an initial layer for receiving the data, two hidden layers for internal processing , and a final layer for generating the output.
+To activate these hidden layers, a special function called ReLU was used. For the final output layer, a different function called sigmoid was employed.
+The model was trained using a technique called backpropagation and aimed to minimize a specific error measure called binary cross-entropy. Adam was another method used to optimize the training process.
+
+-MACHINE LEARNING METHOD
+1.)Investigate how well different methods identify schizophrenia using brain activity data (EEG).
+2.) Analyze two main aspects:
+Effectiveness of a specific method (MLP) in detecting schizophrenia.
+Importance of a specific validation technique (LOSO cross-validation).
+3.) Analyzed EEG data from two tasks - maze navigation and resting with eyes open - for participants with and without schizophrenia.
+4.) Compared different algorithms (MLP, Random Forest, Logistic Regression, etc.)
+5.) Cleaned and standardized EEG data, randomized training data, and used random weight initialization.
+6.) Identified the best configuration for the MLP model (number of layers, activation functions, training parameters).
+7.) Tested the model with manipulated data to ensure it learned the disease condition, not just memorized patterns.
+8.) Trains on all data except one subject, repeated for each subject.
+
+#Discussion
+
+-MLP
+Brain activity data (EEG) from schizophrenia patients and healthy controls using a specific computer program designed to process maze task data.
+Even with a limited dataset (20 subjects), the program successfully distinguished between the two groups based on their brain activity patterns
+
+-LOSO RESULT
+Accuracy dropped to 70% when new objects were classified.
+
+-K-Fold Result
+98% accuracy but included the same subject in both training and testing.
+
+#CONCLUSION
+LOSO cross validation is more realistic and useful  for EEG based data as it give reliable results.
+
